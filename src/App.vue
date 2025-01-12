@@ -44,6 +44,52 @@
       </div>
     </div>
 
+    <!-- Input section -->
+    <div class="input-section" v-if="selectedMethod !== 'AeroPress'">
+      <div class="input-mode-toggle">
+        <button 
+          class="mode-button"
+          :class="{ active: !isCustomSize }"
+          @click="isCustomSize = false"
+        >
+          Standard Cups
+        </button>
+        <button 
+          class="mode-button"
+          :class="{ active: isCustomSize }"
+          @click="isCustomSize = true"
+        >
+          Build Your Own Cup
+        </button>
+      </div>
+
+      <template v-if="!isCustomSize">
+        <label for="cups-count">How many cups are you making?</label>
+        <input 
+          type="number" 
+          id="cups-count" 
+          v-model="peopleCount" 
+          min="1" 
+          max="12"
+        >
+      </template>
+
+      <template v-else>
+        <label for="custom-size">How much coffee do you want to make?</label>
+        <div class="custom-size-input">
+          <input 
+            type="number" 
+            id="custom-size" 
+            v-model="customSize" 
+            :min="unitSystem === 'metric' ? 100 : 3"
+            :max="unitSystem === 'metric' ? 2000 : 68"
+            :step="unitSystem === 'metric' ? 10 : 0.5"
+          >
+          <span class="unit-label">{{ unitSystem === 'metric' ? 'ml' : 'fl oz' }}</span>
+        </div>
+      </template>
+    </div>
+
     <div class="input-section" v-if="selectedMethod === 'AeroPress'">
       <label>Which AeroPress model do you have?</label>
       <div class="aeropress-options">
@@ -57,17 +103,6 @@
           {{ model.name }}
         </div>
       </div>
-    </div>
-
-    <div class="input-section">
-      <label for="people-count">How many people are you making coffee for?</label>
-      <input 
-        type="number" 
-        id="people-count" 
-        v-model="peopleCount" 
-        min="1" 
-        max="12"
-      >
     </div>
 
     <div class="strength-section">
@@ -107,22 +142,21 @@
             selectedMethod === 'Drip Coffee Machine'">
       <h2>Your Coffee Recipe</h2>
       <div class="recipe-details">
-        <p>Water needed: {{ formatWater(totalWater) }}</p>
-        <p>Coffee grounds needed: {{ formatCoffee(coffeeAmount) }}</p>
-        <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
-
+        <!-- Remove redundant water and coffee measurements -->
+        
         <!-- Ratio Summary Box -->
         <div class="ratio-summary">
-          <h3>1 cup breakdown:</h3>
+          <h3>Your brew breakdown:</h3>
+          <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
           <div class="ratio-boxes">
             <div class="ratio-box">
               <h4>Coffee</h4>
-              <div class="amount">{{ formatCoffee((cupsSize / ratio).toFixed(1)) }}</div>
+              <div class="amount">{{ formatCoffee(coffeeAmount) }}</div>
               <div class="unit">{{ unitSystem === 'metric' ? 'grams' : 'oz' }}</div>
             </div>
             <div class="ratio-box">
               <h4>Water</h4>
-              <div class="amount">{{ formatWater(cupsSize) }}</div>
+              <div class="amount">{{ formatWater(totalWater) }}</div>
               <div class="unit">{{ unitSystem === 'metric' ? 'ml' : 'fl oz' }}</div>
             </div>
           </div>
@@ -314,11 +348,20 @@ export default {
           size: 'Medium (similar to sand)',
           reason: 'Provides optimal extraction for automatic drip brewing methods.'
         }
-      }
+      },
+      isCustomSize: false,
+      customSize: 240, // Default to 1 standard cup
     };
   },
   computed: {
     totalWater() {
+      if (this.isCustomSize) {
+        if (this.unitSystem === 'imperial') {
+          // Convert fl oz back to ml for internal calculations
+          return this.customSize * 29.5735;
+        }
+        return this.customSize;
+      }
       return this.peopleCount * this.cupsSize;
     },
     coffeeAmount() {
@@ -395,12 +438,12 @@ export default {
       this.isCustomRatio = true;
       this.selectedStrength = 'Custom';
     },
-    formatWater(ml) {
+    formatWater(amount) {
       if (this.unitSystem === 'metric') {
-        return `${ml}ml`;
+        return `${Math.round(amount)}ml`;
       } else {
-        // Convert ml to fl oz (1 ml ≈ 0.033814 fl oz)
-        const flOz = (ml * 0.033814).toFixed(1);
+        // Convert ml to fluid ounces
+        const flOz = Math.round(amount * 0.033814 * 10) / 10;
         return `${flOz}fl oz`;
       }
     },
@@ -408,8 +451,8 @@ export default {
       if (this.unitSystem === 'metric') {
         return `${grams}g`;
       } else {
-        // Convert grams to ounces (1g ≈ 0.035274 oz)
-        const oz = (grams * 0.035274).toFixed(2);
+        // Convert grams to regular ounces
+        const oz = Math.round(grams * 0.035274 * 100) / 100;
         return `${oz}oz`;
       }
     }
@@ -427,6 +470,18 @@ export default {
         this.cupsSize = 240; // Standard drip coffee cup size
       }
       this.selectStrength(this.selectedStrength);
+    },
+    unitSystem(newSystem) {
+      if (this.isCustomSize) {
+        const currentValue = parseFloat(this.customSize);
+        if (newSystem === 'imperial') {
+          // Convert ml to fluid ounces (1 ml = 0.033814 fl oz)
+          this.customSize = Math.round(currentValue * 0.033814 * 10) / 10;
+        } else {
+          // Convert fluid ounces to ml (1 fl oz = 29.5735 ml)
+          this.customSize = Math.round(currentValue * 29.5735);
+        }
+      }
     }
   }
 };
@@ -874,5 +929,42 @@ h2 {
 .unit-button.active {
   background: #4CAF50;
   color: white;
+}
+
+.input-mode-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.mode-button {
+  padding: 8px 16px;
+  border: 2px solid #4CAF50;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4CAF50;
+  transition: all 0.3s ease;
+}
+
+.mode-button:hover {
+  background: #E8F5E9;
+}
+
+.mode-button.active {
+  background: #4CAF50;
+  color: white;
+}
+
+.custom-size-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-label {
+  font-size: 16px;
+  color: #666;
 }
 </style> 
