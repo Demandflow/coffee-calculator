@@ -393,6 +393,7 @@ export default {
     },
     handleRatioChange() {
       this.isCustomRatio = true;
+      this.selectedStrength = 'Custom';
     },
     formatWater(ml) {
       if (this.unitSystem === 'metric') {
@@ -411,7 +412,6 @@ export default {
         const oz = (grams * 0.035274).toFixed(2);
         return `${oz}oz`;
       }
-      this.selectedStrength = 'Custom';
     }
   },
   watch: {
@@ -874,6 +874,5 @@ h2 {
 .unit-button.active {
   background: #4CAF50;
   color: white;
-}
 }
 </style> 
