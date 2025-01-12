@@ -14,6 +14,18 @@
       </div>
     </div>
 
+    <!-- Grind Size Recommendation -->
+    <div class="grind-recommendation" v-if="selectedMethod">
+      <div class="grind-info">
+        <span class="grind-label">Recommended Grind Size:</span>
+        <span class="grind-size">{{ grindSize }}</span>
+        <div class="tooltip-container">
+          <span class="info-icon">ⓘ</span>
+          <div class="tooltip">{{ grindReason }}</div>
+        </div>
+      </div>
+    </div>
+
     <div class="input-section" v-if="selectedMethod === 'Aero Press'">
       <label>Which AeroPress model do you have?</label>
       <div class="aeropress-options">
@@ -103,7 +115,25 @@ export default {
         { name: 'AeroPress XL', size: 500 },
         { name: 'AeroPress Go Travel', size: 240 }
       ],
-      selectedAeroPress: 'AeroPress Original'
+      selectedAeroPress: 'AeroPress Original',
+      grindRecommendations: {
+        'Chemex': {
+          size: 'Medium-coarse (similar to sea salt)',
+          reason: 'Allows for a slower extraction and prevents over-extraction due to the thick Chemex filter.'
+        },
+        'Aero Press': {
+          size: 'Medium-fine (similar to table salt)',
+          reason: 'Works well for a balanced flavor and faster extraction. You can adjust finer or coarser depending on brewing time and strength preference.'
+        },
+        'Cafitere': {
+          size: 'Coarse (similar to breadcrumbs)',
+          reason: 'Prevents coffee particles from passing through the metal filter and avoids a gritty brew.'
+        },
+        'Drip Coffee Machine': {
+          size: 'Medium (similar to sand)',
+          reason: 'Provides optimal extraction for automatic drip brewing methods.'
+        }
+      }
     };
   },
   computed: {
@@ -112,6 +142,12 @@ export default {
     },
     coffeeAmount() {
       return (this.totalWater / this.ratio).toFixed(1);
+    },
+    grindSize() {
+      return this.grindRecommendations[this.selectedMethod]?.size || '';
+    },
+    grindReason() {
+      return this.grindRecommendations[this.selectedMethod]?.reason || '';
     }
   },
   methods: {
@@ -356,5 +392,76 @@ h2 {
 .model-text {
   color: #2E7D32;
   font-weight: 500;
+}
+
+.grind-recommendation {
+  margin: 20px auto;
+  padding: 15px;
+  max-width: 600px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.grind-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.grind-label {
+  font-weight: 600;
+  color: #2E7D32;
+}
+
+.grind-size {
+  color: #333;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.info-icon {
+  cursor: pointer;
+  color: #4CAF50;
+  font-size: 18px;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  width: 250px;
+  font-size: 14px;
+  line-height: 1.4;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 </style> 
