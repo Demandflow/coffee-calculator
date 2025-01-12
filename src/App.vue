@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="input-section" v-if="selectedMethod === 'Aero Press'">
+    <div class="input-section" v-if="selectedMethod === 'AeroPress'">
       <label>Which AeroPress model do you have?</label>
       <div class="aeropress-options">
         <div
@@ -84,19 +84,64 @@
 
     <div class="results-section" 
       v-if="selectedMethod === 'Chemex' || 
-            selectedMethod === 'Aero Press' || 
+            selectedMethod === 'AeroPress' || 
             selectedMethod === 'Cafetière (French Press)'">
       <h2>Your Coffee Recipe</h2>
       <div class="recipe-details">
         <p>Water needed: {{ totalWater }}ml</p>
         <p>Coffee grounds needed: {{ coffeeAmount }}g</p>
         <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
-        <p v-if="selectedMethod === 'Aero Press'" class="model-text">
+        <p v-if="selectedMethod === 'AeroPress'" class="model-text">
           Using {{ selectedAeroPress }} ({{ cupsSize }}ml per cup)
         </p>
         <p v-if="selectedMethod === 'Cafetière (French Press)'" class="brew-note">
           Brew time: 4 minutes before plunging
         </p>
+
+        <!-- Brewing Instructions -->
+        <div v-if="selectedMethod === 'Chemex'" class="brewing-instructions">
+          <button class="toggle-instructions" @click="showBrewingDetails = !showBrewingDetails">
+            {{ showBrewingDetails ? 'Hide' : 'Show' }} Brewing Instructions
+          </button>
+          <div v-if="showBrewingDetails" class="instructions-content">
+            <p class="total-time">Total Time: {{ brewingInstructions.Chemex.time }}</p>
+            <div v-for="(step, index) in brewingInstructions.Chemex.steps" 
+                 :key="index" 
+                 class="instruction-step">
+              <h4>{{ step.title }}</h4>
+              <p>{{ step.details }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedMethod === 'AeroPress'" class="brewing-instructions">
+          <div class="method-selector">
+            <button 
+              class="method-button" 
+              :class="{ active: aeroPressMethod === 'standard' }"
+              @click="aeroPressMethod = 'standard'"
+            >
+              Standard Method
+            </button>
+            <button 
+              class="method-button" 
+              :class="{ active: aeroPressMethod === 'inverted' }"
+              @click="aeroPressMethod = 'inverted'"
+            >
+              Inverted Method
+            </button>
+          </div>
+          <div class="instructions-content">
+            <p class="total-time">Total Time: {{ brewingInstructions.AeroPress[aeroPressMethod].time }}</p>
+            <div class="instruction-steps">
+              <div v-for="(step, index) in brewingInstructions.AeroPress[aeroPressMethod].steps" 
+                   :key="index" 
+                   class="instruction-step">
+                <p>{{ index + 1 }}. {{ step }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -106,14 +151,55 @@
 export default {
   data() {
     return {
-      coffeeMethods: ['Chemex', 'Aero Press', 'Cafetière (French Press)', 'Drip Coffee Machine'],
+      coffeeMethods: ['Chemex', 'AeroPress', 'Cafetière (French Press)', 'Drip Coffee Machine'],
       selectedMethod: 'Chemex',
       peopleCount: 1,
       coffeeStrengths: ['Light', 'Medium', 'Strong'],
       selectedStrength: 'Medium',
       ratio: 16,
       isCustomRatio: false,
-      cupsSize: 300, // default for Chemex
+      cupsSize: 300,
+      showBrewingDetails: false,
+      aeroPressMethod: 'standard',
+      brewingInstructions: {
+        'Chemex': {
+          time: '4:00-5:00 minutes total',
+          steps: [
+            {
+              title: 'Bloom phase (30-45 seconds)',
+              details: 'Pour about twice the weight of the coffee in water (e.g., for 30g coffee, use ~60g water). Let the coffee bloom to release gases.'
+            },
+            {
+              title: 'First pour (1:30 minutes)',
+              details: 'After the bloom, start pouring water in slow, circular motions until half of your total water amount is added.'
+            },
+            {
+              title: 'Second pour (2:00 minutes)',
+              details: 'Continue pouring the remaining water, ensuring the coffee bed is consistently wet. Total brew time should reach around 4:00-5:00 minutes.'
+            }
+          ]
+        },
+        'AeroPress': {
+          standard: {
+            time: '1:30-2:00 minutes total',
+            steps: [
+              'Add coffee and water',
+              'Stir for about 10 seconds',
+              'Let steep for 1:00 to 1:30 minutes',
+              'Press down slowly for about 20-30 seconds'
+            ]
+          },
+          inverted: {
+            time: '2:30-3:00 minutes total',
+            steps: [
+              'Add coffee and water',
+              'Stir for 10-15 seconds',
+              'Let steep for 2:00 to 2:30 minutes',
+              'Flip and press slowly for 20-30 seconds'
+            ]
+          }
+        }
+      },
       aeroPressModels: [
         { name: 'AeroPress Premium', size: 240 },
         { name: 'AeroPress Original', size: 240 },
@@ -127,7 +213,7 @@ export default {
           size: 'Medium-coarse (similar to sea salt)',
           reason: 'Allows for a slower extraction and prevents over-extraction due to the thick Chemex filter.'
         },
-        'Aero Press': {
+        'AeroPress': {
           size: 'Medium-fine (similar to table salt)',
           reason: 'Works well for a balanced flavor and faster extraction. You can adjust finer or coarser depending on brewing time and strength preference.'
         },
@@ -162,7 +248,7 @@ export default {
       this.isCustomRatio = false;
       
       // Set ratio based on strength and method
-      if (this.selectedMethod === 'Aero Press') {
+      if (this.selectedMethod === 'AeroPress') {
         switch(strength) {
           case 'Light':
             this.ratio = 17;
@@ -214,7 +300,7 @@ export default {
       // Reset cup size and ratios when switching methods
       if (newMethod === 'Chemex') {
         this.cupsSize = 300;
-      } else if (newMethod === 'Aero Press') {
+      } else if (newMethod === 'AeroPress') {
         this.cupsSize = 240;
       } else if (newMethod === 'Cafetière (French Press)') {
         this.cupsSize = 350; // Standard French Press cup size
@@ -491,5 +577,79 @@ h2 {
   margin-top: 15px;
   padding-top: 10px;
   border-top: 1px solid #e0e0e0;
+}
+
+.brewing-instructions {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.toggle-instructions {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.toggle-instructions:hover {
+  background: #45a049;
+}
+
+.instructions-content {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.total-time {
+  font-weight: 600;
+  color: #2E7D32;
+  margin-bottom: 10px;
+}
+
+.instruction-step {
+  margin-bottom: 15px;
+}
+
+.instruction-step h4 {
+  color: #2E7D32;
+  margin-bottom: 5px;
+}
+
+.method-selector {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.method-button {
+  background: #f8f9fa;
+  border: 2px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.method-button.active {
+  background: #E8F5E9;
+  border-color: #4CAF50;
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+.method-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.instruction-steps {
+  padding-left: 20px;
 }
 </style> 
