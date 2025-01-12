@@ -1,6 +1,4 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/coffee-calculator/'
-    : '/',
+  publicPath: process.env.BASE_URL || '/',
   outputDir: 'dist'
 } 

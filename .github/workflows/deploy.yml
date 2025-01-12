@@ -1,9 +1,10 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
 on:
   push:
     branches:
       - main
+      - staging
 
 permissions:
   contents: write
@@ -25,9 +26,13 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NODE_ENV: production
+          BASE_URL: ${{ github.ref == 'refs/heads/main' && '/coffee-calculator/' || '/coffee-calculator-staging/' }}
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
-          branch: gh-pages 
+          branch: ${{ github.ref == 'refs/heads/main' && 'gh-pages' || 'gh-pages-staging' }}
+          target-folder: ${{ github.ref == 'refs/heads/main' && '/' || '/staging' }} 
