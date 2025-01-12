@@ -59,7 +59,7 @@
           :class="{ active: isCustomSize }"
           @click="isCustomSize = true"
         >
-          Build Your Own Cup
+          Build Your Own Brew
         </button>
       </div>
 
