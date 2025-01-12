@@ -163,7 +163,7 @@
         </div>
 
         <p v-if="selectedMethod === 'AeroPress'" class="model-text">
-          Using {{ selectedAeroPress }} ({{ cupsSize }}ml per cup)
+          Using {{ selectedAeroPress }} ({{ formatWater(cupsSize) }})
         </p>
         <p v-if="selectedMethod === 'Cafetière (French Press)'" class="brew-note">
           Brew time: 4 minutes before plunging
@@ -432,7 +432,7 @@ export default {
     },
     selectAeroPress(model) {
       this.selectedAeroPress = model.name;
-      this.cupsSize = model.size;
+      this.cupsSize = model.size; // Size is always stored in ml internally
     },
     handleRatioChange() {
       this.isCustomRatio = true;
