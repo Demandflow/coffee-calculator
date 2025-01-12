@@ -1,5 +1,23 @@
 <template>
   <div id="app">
+    <!-- Unit System Toggle -->
+    <div class="unit-toggle">
+      <button 
+        class="unit-button" 
+        :class="{ active: unitSystem === 'metric' }"
+        @click="unitSystem = 'metric'"
+      >
+        Metric
+      </button>
+      <button 
+        class="unit-button" 
+        :class="{ active: unitSystem === 'imperial' }"
+        @click="unitSystem = 'imperial'"
+      >
+        Imperial
+      </button>
+    </div>
+
     <h1>Coffee Calculator</h1>
     
     <div class="method-container">
@@ -89,8 +107,8 @@
             selectedMethod === 'Drip Coffee Machine'">
       <h2>Your Coffee Recipe</h2>
       <div class="recipe-details">
-        <p>Water needed: {{ totalWater }}ml</p>
-        <p>Coffee grounds needed: {{ coffeeAmount }}g</p>
+        <p>Water needed: {{ formatWater(totalWater) }}</p>
+        <p>Coffee grounds needed: {{ formatCoffee(coffeeAmount) }}</p>
         <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
 
         <!-- Ratio Summary Box -->
@@ -99,13 +117,13 @@
           <div class="ratio-boxes">
             <div class="ratio-box">
               <h4>Coffee</h4>
-              <div class="amount">{{ (cupsSize / ratio).toFixed(1) }}g</div>
-              <div class="unit">grams</div>
+              <div class="amount">{{ formatCoffee((cupsSize / ratio).toFixed(1)) }}</div>
+              <div class="unit">{{ unitSystem === 'metric' ? 'grams' : 'oz' }}</div>
             </div>
             <div class="ratio-box">
               <h4>Water</h4>
-              <div class="amount">{{ cupsSize }}g</div>
-              <div class="unit">grams</div>
+              <div class="amount">{{ formatWater(cupsSize) }}</div>
+              <div class="unit">{{ unitSystem === 'metric' ? 'ml' : 'fl oz' }}</div>
             </div>
           </div>
         </div>
@@ -201,6 +219,7 @@ export default {
       cupsSize: 300,
       showBrewingDetails: false,
       aeroPressMethod: 'standard',
+      unitSystem: 'metric',
       brewingInstructions: {
         'Chemex': {
           time: '4:00-5:00 minutes total',
@@ -374,6 +393,24 @@ export default {
     },
     handleRatioChange() {
       this.isCustomRatio = true;
+    },
+    formatWater(ml) {
+      if (this.unitSystem === 'metric') {
+        return `${ml}ml`;
+      } else {
+        // Convert ml to fl oz (1 ml ≈ 0.033814 fl oz)
+        const flOz = (ml * 0.033814).toFixed(1);
+        return `${flOz}fl oz`;
+      }
+    },
+    formatCoffee(grams) {
+      if (this.unitSystem === 'metric') {
+        return `${grams}g`;
+      } else {
+        // Convert grams to ounces (1g ≈ 0.035274 oz)
+        const oz = (grams * 0.035274).toFixed(2);
+        return `${oz}oz`;
+      }
       this.selectedStrength = 'Custom';
     }
   },
@@ -401,6 +438,7 @@ export default {
   text-align: center;
   margin: 0 auto;
   max-width: 1200px;
+  position: relative;
   padding: 20px;
 }
 
@@ -804,5 +842,38 @@ h2 {
 .ratio-box .unit {
   font-size: 12px;
   color: #666;
+}
+
+.unit-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 5px;
+  background: #f8f9fa;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid #dde3dd;
+}
+
+.unit-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.unit-button:hover {
+  background: #e9ecef;
+}
+
+.unit-button.active {
+  background: #4CAF50;
+  color: white;
+}
 }
 </style> 
