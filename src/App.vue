@@ -85,7 +85,8 @@
     <div class="results-section" 
       v-if="selectedMethod === 'Chemex' || 
             selectedMethod === 'AeroPress' || 
-            selectedMethod === 'Cafetière (French Press)'">
+            selectedMethod === 'Cafetière (French Press)' || 
+            selectedMethod === 'Drip Coffee Machine'">
       <h2>Your Coffee Recipe</h2>
       <div class="recipe-details">
         <p>Water needed: {{ totalWater }}ml</p>
@@ -139,6 +140,27 @@
                    class="instruction-step">
                 <p>{{ index + 1 }}. {{ step }}</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedMethod === 'Drip Coffee Machine'" class="brewing-instructions">
+          <div class="instructions-content">
+            <p class="total-time">Total Time: {{ brewingInstructions['Drip Coffee Machine'].time }}</p>
+            <div v-for="(step, index) in brewingInstructions['Drip Coffee Machine'].steps" 
+                 :key="index" 
+                 class="instruction-step">
+              <h4>{{ step.title }}</h4>
+              <p>{{ step.details }}</p>
+            </div>
+            <div class="tips-section">
+              <h4>Tips for Best Results:</h4>
+              <ul>
+                <li v-for="(tip, index) in brewingInstructions['Drip Coffee Machine'].tips" 
+                    :key="index">
+                  {{ tip }}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -198,6 +220,36 @@ export default {
               'Flip and press slowly for 20-30 seconds'
             ]
           }
+        },
+        'Drip Coffee Machine': {
+          time: '4-6 minutes total',
+          steps: [
+            {
+              title: 'Prepare the filter',
+              details: 'Place a paper filter in the basket. Rinse it with hot water to remove any paper taste and warm the carafe. Discard the rinse water.'
+            },
+            {
+              title: 'Add coffee grounds',
+              details: 'Evenly distribute the grounds in the filter.'
+            },
+            {
+              title: 'Fill the water reservoir',
+              details: 'Add the measured amount of fresh, filtered water to the reservoir.'
+            },
+            {
+              title: 'Start brewing',
+              details: 'Let the machine run its full brewing cycle (4-6 minutes).'
+            },
+            {
+              title: 'Serve immediately',
+              details: 'Pour the freshly brewed coffee into your cup and enjoy!'
+            }
+          ],
+          tips: [
+            'Use fresh, filtered water for better flavor',
+            'Clean your drip machine regularly to avoid buildup that can affect taste',
+            'Pre-warm your cup to keep coffee hotter for longer'
+          ]
         }
       },
       aeroPressModels: [
@@ -284,6 +336,18 @@ export default {
             this.ratio = 12;
             break;
         }
+      } else if (this.selectedMethod === 'Drip Coffee Machine') {
+        switch(strength) {
+          case 'Light':
+            this.ratio = 17;
+            break;
+          case 'Medium':
+            this.ratio = 16;
+            break;
+          case 'Strong':
+            this.ratio = 15;
+            break;
+        }
       }
     },
     selectAeroPress(model) {
@@ -303,9 +367,11 @@ export default {
       } else if (newMethod === 'AeroPress') {
         this.cupsSize = 240;
       } else if (newMethod === 'Cafetière (French Press)') {
-        this.cupsSize = 350; // Standard French Press cup size
+        this.cupsSize = 350;
+      } else if (newMethod === 'Drip Coffee Machine') {
+        this.cupsSize = 240; // Standard drip coffee cup size
       }
-      this.selectStrength(this.selectedStrength); // Reset ratio based on new method
+      this.selectStrength(this.selectedStrength);
     }
   }
 };
@@ -651,5 +717,27 @@ h2 {
 
 .instruction-steps {
   padding-left: 20px;
+}
+
+.tips-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.tips-section h4 {
+  color: #2E7D32;
+  margin-bottom: 10px;
+}
+
+.tips-section ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.tips-section li {
+  margin: 8px 0;
+  color: #333;
 }
 </style> 
