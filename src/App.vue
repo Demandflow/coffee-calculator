@@ -92,6 +92,24 @@
         <p>Water needed: {{ totalWater }}ml</p>
         <p>Coffee grounds needed: {{ coffeeAmount }}g</p>
         <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
+
+        <!-- Ratio Summary Box -->
+        <div class="ratio-summary">
+          <h3>1 cup breakdown:</h3>
+          <div class="ratio-boxes">
+            <div class="ratio-box">
+              <h4>Coffee</h4>
+              <div class="amount">{{ (cupsSize / ratio).toFixed(1) }}g</div>
+              <div class="unit">grams</div>
+            </div>
+            <div class="ratio-box">
+              <h4>Water</h4>
+              <div class="amount">{{ cupsSize }}g</div>
+              <div class="unit">grams</div>
+            </div>
+          </div>
+        </div>
+
         <p v-if="selectedMethod === 'AeroPress'" class="model-text">
           Using {{ selectedAeroPress }} ({{ cupsSize }}ml per cup)
         </p>
@@ -739,5 +757,52 @@ h2 {
 .tips-section li {
   margin: 8px 0;
   color: #333;
+}
+
+.ratio-summary {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f0f4f0;
+  border-radius: 8px;
+  border: 1px solid #dde3dd;
+}
+
+.ratio-summary h3 {
+  color: #2E7D32;
+  font-size: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.ratio-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.ratio-box {
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.ratio-box h4 {
+  color: #2E7D32;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.ratio-box .amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.ratio-box .unit {
+  font-size: 12px;
+  color: #666;
 }
 </style> 
