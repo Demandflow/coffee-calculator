@@ -82,7 +82,10 @@
       </div>
     </div>
 
-    <div class="results-section" v-if="selectedMethod === 'Chemex' || selectedMethod === 'Aero Press'">
+    <div class="results-section" 
+      v-if="selectedMethod === 'Chemex' || 
+            selectedMethod === 'Aero Press' || 
+            selectedMethod === 'Cafetière (French Press)'">
       <h2>Your Coffee Recipe</h2>
       <div class="recipe-details">
         <p>Water needed: {{ totalWater }}ml</p>
@@ -90,6 +93,9 @@
         <p class="ratio-text">Using ratio 1:{{ ratio }}</p>
         <p v-if="selectedMethod === 'Aero Press'" class="model-text">
           Using {{ selectedAeroPress }} ({{ cupsSize }}ml per cup)
+        </p>
+        <p v-if="selectedMethod === 'Cafetière (French Press)'" class="brew-note">
+          Brew time: 4 minutes before plunging
         </p>
       </div>
     </div>
@@ -100,7 +106,7 @@
 export default {
   data() {
     return {
-      coffeeMethods: ['Chemex', 'Aero Press', 'Cafitere', 'Drip Coffee Machine'],
+      coffeeMethods: ['Chemex', 'Aero Press', 'Cafetière (French Press)', 'Drip Coffee Machine'],
       selectedMethod: 'Chemex',
       peopleCount: 1,
       coffeeStrengths: ['Light', 'Medium', 'Strong'],
@@ -125,7 +131,7 @@ export default {
           size: 'Medium-fine (similar to table salt)',
           reason: 'Works well for a balanced flavor and faster extraction. You can adjust finer or coarser depending on brewing time and strength preference.'
         },
-        'Cafitere': {
+        'Cafetière (French Press)': {
           size: 'Coarse (similar to breadcrumbs)',
           reason: 'Prevents coffee particles from passing through the metal filter and avoids a gritty brew.'
         },
@@ -180,6 +186,18 @@ export default {
             this.ratio = 15;
             break;
         }
+      } else if (this.selectedMethod === 'Cafetière (French Press)') {
+        switch(strength) {
+          case 'Light':
+            this.ratio = 17;
+            break;
+          case 'Medium':
+            this.ratio = 15;
+            break;
+          case 'Strong':
+            this.ratio = 12;
+            break;
+        }
       }
     },
     selectAeroPress(model) {
@@ -197,7 +215,9 @@ export default {
       if (newMethod === 'Chemex') {
         this.cupsSize = 300;
       } else if (newMethod === 'Aero Press') {
-        this.cupsSize = 240; // Default AeroPress size
+        this.cupsSize = 240;
+      } else if (newMethod === 'Cafetière (French Press)') {
+        this.cupsSize = 350; // Standard French Press cup size
       }
       this.selectStrength(this.selectedStrength); // Reset ratio based on new method
     }
@@ -463,5 +483,13 @@ h2 {
 .tooltip-container:hover .tooltip {
   visibility: visible;
   opacity: 1;
+}
+
+.brew-note {
+  color: #2E7D32;
+  font-style: italic;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
 }
 </style> 
